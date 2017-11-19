@@ -13,24 +13,15 @@
 
 #import <objc/runtime.h>
 #import <objc/message.h>
-static NSString     *  kInfoPlistPath;
-static NSDictionary *  kInfoPlistDic;
-static NSArray      *  kInfoPlistMapObjectsArray;
 
 @implementation IMapEngine
-- (instancetype)init{
-    if (self = [super init]) {
-        kInfoPlistPath = [[NSBundle mainBundle] pathForResource:@"MapInfo.plist" ofType:nil];
-        kInfoPlistDic  = [NSDictionary dictionaryWithContentsOfFile:kInfoPlistPath];
-        kInfoPlistMapObjectsArray = kInfoPlistDic[@"MapArray"];
-    }
-    return self;
-}
 - (id<IMapFactory>)getFactory{
-    return [[[kInfoPlistMapObjectsArray firstObject] objectForKey:@"isOpen"] boolValue]? [[BDMapFactory alloc] init]:[[GaodeMapFactory alloc] init];
+    NSArray * objArray = [self engineGetObjectArray];
+    return [[[objArray firstObject] objectForKey:@"isOpen"] boolValue]? [[BDMapFactory alloc] init]:[[GaodeMapFactory alloc] init];
 }
 - (void)engineSetting{
-    NSDictionary * mapObject = [kInfoPlistMapObjectsArray firstObject];
+    NSArray * objArray = [self engineGetObjectArray];
+    NSDictionary * mapObject = [objArray firstObject];
     if ([[mapObject objectForKey:@"isOpen"] boolValue]) {
         id obj = objc_getClass("BMKMapManager");
         obj = objc_msgSend(objc_msgSend(obj, sel_registerName("alloc")), sel_registerName("init"));
@@ -42,7 +33,7 @@ static NSArray      *  kInfoPlistMapObjectsArray;
             NSLog(@"manager start failed!");
         }
     }else{
-        mapObject = [kInfoPlistMapObjectsArray lastObject];
+        mapObject = [objArray lastObject];
         //获取类
         Class class = [objc_getClass("AMapServices") class];
         if (class) {
@@ -53,8 +44,13 @@ static NSArray      *  kInfoPlistMapObjectsArray;
             //给属性赋值
             object_setIvar(obj, ivar,mapObject[@"appKey"]);
         }
-        
     }
 }
-
+- (NSArray *)engineGetObjectArray{
+    NSString     * kInfoPlistPath = [[NSBundle mainBundle] pathForResource:@"MapInfo.plist" ofType:nil];
+    NSDictionary * kInfoPlistDic  = [NSDictionary dictionaryWithContentsOfFile:kInfoPlistPath];
+    NSArray      * kInfoPlistMapObjectsArray = kInfoPlistDic[@"MapArray"];
+    
+    return kInfoPlistMapObjectsArray;
+}
 @end

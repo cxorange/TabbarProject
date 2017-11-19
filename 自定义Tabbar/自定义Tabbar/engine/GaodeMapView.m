@@ -11,6 +11,7 @@
 #import <objc/message.h>
 @interface GaodeMapView()
 @end
+static NSString * const kGaodeMapViewStr = @"mapView";
 @implementation GaodeMapView
 
 - (instancetype)initWithFrame:(CGRect)frame{
@@ -19,14 +20,14 @@
         id obj = objc_getClass("MAMapView");
         if (obj) {
             obj = objc_msgSend(objc_msgSend(obj, sel_registerName("alloc")), sel_registerName("initWithFrame:"),frame);
-            objc_setAssociatedObject(self, (__bridge const void *)@"mapView", obj, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            objc_setAssociatedObject(self, (__bridge const void *)kGaodeMapViewStr, obj, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
         
     }
     return self;
 }
 - (UIView *)getView{
-    return objc_getAssociatedObject(self, (__bridge const void *)@"mapView");
+    return objc_getAssociatedObject(self, (__bridge const void *)kGaodeMapViewStr);
 }
 
 @end

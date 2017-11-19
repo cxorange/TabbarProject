@@ -11,8 +11,8 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 @interface BDMapView()
-
 @end
+static NSString * const kBDMapViewStr = @"mapView";
 @implementation BDMapView
 
 - (instancetype)initWithFrame:(CGRect)frame{
@@ -23,7 +23,7 @@
             obj = objc_msgSend(obj, @selector(alloc));
             obj = objc_msgSend(obj, @selector(initWithFrame:),frame);
             //将mapView添加到当前对象
-            objc_setAssociatedObject(self, (__bridge const void *)@"mapView", obj, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            objc_setAssociatedObject(self, (__bridge const void *)kBDMapViewStr, obj, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
         
     }
@@ -32,7 +32,7 @@
 }
 - (UIView *)getView{
     //获取mapView
-    id obj = objc_getAssociatedObject(self, (__bridge const void *)@"mapView");
+    id obj = objc_getAssociatedObject(self, (__bridge const void *)kBDMapViewStr);
     if (obj) {
         return obj;
     }
